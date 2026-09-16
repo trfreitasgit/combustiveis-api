@@ -1,19 +1,23 @@
-var express = require ('express');
-var app = express ();
-var fs = require ('fs');
-var csv = require ('csv-parser');
-var routes = require ('./routes/combustiveis');
-var controller = require ('./controllers/combustiveisController')
-var resultados = []
+var express = require('express');
+var app = express();
+var axios = require('axios');
+var csv = require('csv-parser');
+var routes = require('./routes/combustiveis');
+var controller = require('./controllers/combustiveisController');
 
-fs.createReadStream('./data/2004-2021.tsv')
-    .pipe (csv({separator: '\t'}))
-    .on ('data', function (linha) {
-        controller.dados.push(linha);
-    })
-    .on ('end', function () {
-        console.log('Total de registros: ', controller.dados.length);
-        routes(app);
-        app.listen(process.env.PORT || 3000);
-        console.log('Primeiro registro: ', controller.dados[0]);
-    })
+var URL_DATASET = 'https://github.com/trfreitasgit/combustiveis-api/releases/download/v1.0/2004-2021.tsv';
+
+axios.get(URL_DATASET, { responseType: 'stream'})
+    .then (function(resposta) {
+        resposta.data
+            .pipe(csv({ separator: '\t' }))
+            .on('data', function(linha) {
+                controller.dados.push(linha);
+            })
+            .on('end', function() {
+                console.log('Total de registros: ', controller.dados.length);
+                routes(app);
+                app.listen(process.env.PORT || 3000);
+                console.log('Servidor no ar!');
+        });
+    });
