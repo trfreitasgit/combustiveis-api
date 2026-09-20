@@ -12,6 +12,12 @@ axios.get(URL_DATASET, { responseType: 'stream'})
         resposta.data
             .pipe(csv({ separator: '\t' }))
             .on('data', function(linha) {
+                if (linha['PRODUTO'] === 'OLEO DIESEL') {
+                    linha['PRODUTO'] = 'ÓLEO DIESEL';
+                };
+                if (linha['PRODUTO'] === 'OLEO DIESEL S10') {
+                    linha['PRODUTO'] = 'ÓLEO DIESEL S10';
+                }
                 controller.dados.push(linha);
             })
             .on('end', function() {

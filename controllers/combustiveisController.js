@@ -63,4 +63,41 @@ function resumoPorEstado (req, res) {
 
     res.json(resultado);
 };
-module.exports = {dados, todos, porEstado, porProduto, resumoPorEstado};
+
+function resumoPorAno (req, res) {
+    var produto = req.query.produto; //retorna produto ?produto=GASOLINA COMUM
+    var resumo = {};
+
+    var filtrados = dados.filter(function (item) {
+        var passaProduto = true;
+        var passaAno = true;
+
+        if(produto) {
+            passaProduto = item['PRODUTO'] === produto;
+        }
+
+        return passaProduto;
+    });
+
+    filtrados.forEach(function(item){
+        var ano = item['DATA INICIAL'].substring(0, 4);
+        var preco = parseFloat(item['PREÇO MÉDIO REVENDA'].replace(',','.'));
+        
+        if (!resumo[ano]) {
+            resumo[ano] = { total: 0, quantidade: 0};
+        }
+
+        resumo[ano].total += preco;
+        resumo[ano].quantidade += 1;
+    });
+
+    var resultado = Object.keys(resumo).map(function(ano) {
+        return {
+            ano: ano,
+            precoMedio: (resumo[ano].total / resumo[ano].quantidade).toFixed(2)
+        };
+    });
+
+    res.json(resultado);
+}
+module.exports = {dados, todos, porEstado, porProduto, resumoPorEstado, resumoPorAno};
