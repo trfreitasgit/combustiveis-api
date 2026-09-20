@@ -9,7 +9,7 @@ API em produção: https://combustiveis-api-production.up.railway.app
 ## 📊 Dashboard
 
 Dashboard interativo no Power BI com evolução histórica e comparativo por estado.
-[adicionar print do dashboard aqui depois]
+
 
 ## 🔗 Rotas disponíveis
 
