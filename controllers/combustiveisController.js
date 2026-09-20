@@ -23,26 +23,44 @@ function porProduto (req, res) {
 };
 
 function resumoPorEstado (req, res) {
-    resumo = {};
-    dados.forEach(function(item) {    // item é uma linha do TSV, tipo: // { ESTADO: 'GOIAS', 'PREÇO MÉDIO REVENDA': '1.28', ... }
-        var estado = item['ESTADO']; //pega o estado da linha
-        var preco = parseFloat(item['PREÇO MÉDIO REVENDA'].replace(',', '.'));
+    var produto = req.query.produto; //Pega ?produto=GASOLINA da URL
+    var ano = req.query.ano; //Pega ?ano=2021 da URL
+
+    var filtrados = dados.filter(function (item) {
+        var passaProduto = true;
+        var passaAno = true;
+
+        if (produto) {
+            passaProduto = item['PRODUTO'] === produto;
+        }
+
+        if (ano) {
+            passaAno = item['DATA INICIAL'] && item['DATA INICIAL'].startsWith(ano);
+        }
+
+        return passaProduto && passaAno;
+    });
+
+    var resumo = {};
+    filtrados.forEach(function(item) {
+        var estado = item['ESTADO'];
+        var preco = parseFloat(item['PREÇO MÉDIO REVENDA'].replace(',','.'));
 
         if (!resumo[estado]) {
             resumo[estado] = { total: 0, quantidade: 0};
         }
 
-        resumo[estado].total += preco; //soma o preço
-        resumo[estado].quantidade += 1; //conta mais um
+        resumo[estado].total += preco; //Soma o preço
+        resumo[estado].quantidade += 1; //Conta mais um
     });
 
-    var resultado = Object.keys(resumo).map(function(estado) { //objectkey pega só os nomes das chaves: [SP], [RJ], [MG]
+    var resultado = Object.keys(resumo).map(function(estado) {
         return {
             estado: estado,
             precoMedio: (resumo[estado].total / resumo[estado].quantidade).toFixed(2)
-         };
+        };
     });
-    res.json(resultado)
-    };
 
+    res.json(resultado);
+};
 module.exports = {dados, todos, porEstado, porProduto, resumoPorEstado};
